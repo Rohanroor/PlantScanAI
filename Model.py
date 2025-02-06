@@ -16,6 +16,14 @@ try:
 
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
+
+    # ==============================================================
+    # ADD THIS CODE TO INSPECT INPUT SHAPE
+    # ==============================================================
+    input_shape = input_details[0]['shape']
+    print(f"Model input shape: {input_shape}")  # Debugging line
+    # ==============================================================
+
 except ValueError as e:
     print(f"Error loading .tflite model: {e}. Check the file path.")
     exit()  # Or handle the error appropriately
@@ -44,25 +52,48 @@ except Exception as e:
     exit()
 #bug fix1...    
 
-def preprocess_image(image_path, input_shape):  # Add input_shape for tflite
+def preprocess_image(image_path, target_height, target_width, has_batch_dim):
     try:
-        img = Image.open(image_path).convert("RGB")  # Ensure RGB for consistency
-        # Resize for tflite model if needed.  Use cv2 if PIL resizing causes issues.
-        img = img.resize(input_shape[:2]) # Resize to (height, width)
+        img = Image.open(image_path).convert("L")  # <-- CHANGE "RGB" to "L" for grayscale
+        img = img.resize((target_width, target_height))  # PIL uses (width, height)
         img_array = np.array(img) / 255.0  # Normalize
-        img_array = np.expand_dims(img_array, axis=0).astype(np.float32)  # Add batch dimension and ensure float32 for tflite
+        img_array = img_array.astype(np.float32)
+
+        # Add channel dimension (grayscale has 1 channel)
+        img_array = np.expand_dims(img_array, axis=-1)  # Shape: [H, W, 1]
+
+        # Add batch dimension if required
+        if has_batch_dim:
+            img_array = np.expand_dims(img_array, axis=0)  # Shape: [1, H, W, 1]
+
         return img_array
-    except FileNotFoundError:
-        print(f"Image not found: {image_path}")
-        return None
-    except Exception as e:  # Catch other potential image processing errors
+    except Exception as e:
         print(f"Error preprocessing image: {e}")
         return None
 
 
 def predict_disease(image_path):
     input_shape = input_details[0]['shape']  # Get input shape from tflite model
-    img_array = preprocess_image(image_path, input_shape[1:3])  # Pass height, width
+
+    # Determine if the model expects a batch dimension
+    if len(input_shape) == 4:
+        # Model expects a 4D input: [batch, height, width, channels]
+        target_height = input_shape[1]
+        target_width = input_shape[2]
+        has_batch_dim = True
+    else:
+        # Model expects a 3D input: [height, width, channels]
+        target_height = input_shape[0]
+        target_width = input_shape[1]
+        has_batch_dim = False
+
+    # Preprocess the image
+    img_array = preprocess_image(
+        image_path,
+        target_height=target_height,
+        target_width=target_width,
+        has_batch_dim=has_batch_dim  # Pass this flag to control batch dimension
+    )
 
     if img_array is None:
         return None
