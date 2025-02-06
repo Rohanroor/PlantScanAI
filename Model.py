@@ -3,10 +3,8 @@ import pickle
 import numpy as np
 from PIL import Image
 # import cv2  # For image resizing if needed
-# bug fix1...
-import joblib  # Add this import
 
-# bug fix1...
+import joblib  # Add this import
 
 
 # Load the .tflite model
@@ -27,20 +25,6 @@ try:
 except ValueError as e:
     print(f"Error loading .tflite model: {e}. Check the file path.")
     exit()  # Or handle the error appropriately
-
-'''
-# Load the .pkl models
-try:
-    with open("svm_model.pkl", "rb") as f:  # Replace with your .pkl file path
-        model1 = pickle.load(f)
-    with open("rf_model.pkl", "rb") as f:  # Replace with your other .pkl file path
-        model2 = pickle.load(f)
-except FileNotFoundError as e:
-    print(f"Error loading .pkl model: {e}. Check the file paths.")
-    exit()
-'''
-
-# bug fix1...
 
 # Load models with joblib
 try:
