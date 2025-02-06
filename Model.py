@@ -1,8 +1,13 @@
+
 import tensorflow as tf
 import pickle
 import numpy as np
 from PIL import Image
-import cv2  # For image resizing if needed
+#import cv2  # For image resizing if needed
+#bug fix1...
+import joblib  # Add this import
+#bug fix1...
+
 
 # Load the .tflite model
 try:
@@ -15,6 +20,8 @@ except ValueError as e:
     print(f"Error loading .tflite model: {e}. Check the file path.")
     exit()  # Or handle the error appropriately
 
+    
+'''
 # Load the .pkl models
 try:
     with open("svm_model.pkl", "rb") as f:  # Replace with your .pkl file path
@@ -24,7 +31,18 @@ try:
 except FileNotFoundError as e:
     print(f"Error loading .pkl model: {e}. Check the file paths.")
     exit()
+'''    
 
+#bug fix1...
+
+# Load models with joblib
+try:
+    model1 = joblib.load("svm_model.pkl")
+    model2 = joblib.load("rf_model.pkl")
+except Exception as e:
+    print(f"Error loading models: {e}")
+    exit()
+#bug fix1...    
 
 def preprocess_image(image_path, input_shape):  # Add input_shape for tflite
     try:
@@ -92,3 +110,5 @@ if prediction is not None:
     print(f"Predicted Disease (0-8): {prediction}")
 else:
     print("Prediction failed.")
+
+
