@@ -1,18 +1,514 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Image Upload</title>
+    <title>Plant Scan AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Color Palette */
+        :root {
+            --deep-space: #0F172A;
+            --nebula-blue: #1E293B;
+            --bio-green: #10B981;
+            --cyber-teal: #2DD4BF;
+            --neon-mint: #6EE7B7;
+            --error-red: #EF4444;
+            --glass-white: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--deep-space) 0%, #0B4B3A 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Gradient Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                var(--deep-space) 0%,
+                var(--nebula-blue) 25%,
+                var(--bio-green) 50%,
+                var(--cyber-teal) 75%,
+                var(--deep-space) 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientFlow 20s ease infinite;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, var(--bio-green) 0%, var(--cyber-teal) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            position: relative;
+        }
+
+        h1::after {
+            content: '🌱';
+            position: absolute;
+            right: -40px;
+            top: -10px;
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 8px var(--bio-green));
+        }
+
+        .upload-section {
+            background: var(--glass-white);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .upload-section:hover {
+            transform: translateY(-3px);
+        }
+
+        .custom-file-input label {
+            background: linear-gradient(135deg, var(--bio-green) 0%, var(--cyber-teal) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 24px -6px rgba(16, 185, 129, 0.3);
+        }
+
+        .custom-file-input label:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 32px -6px rgba(16, 185, 129, 0.4);
+        }
+
+        input[type="submit"] {
+            background: linear-gradient(135deg, var(--cyber-teal) 0%, var(--neon-mint) 100%);
+            color: var(--deep-space);
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px -6px rgba(45, 212, 191, 0.4);
+        }
+
+        .result-section {
+            background: var(--glass-white);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-section img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            margin: 1.5rem 0;
+        }
+
+        .diagnosis-report {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(45, 212, 191, 0.1) 100%);
+            border-radius: 12px;
+            margin-top: 1.5rem;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .upload-section {
+                padding: 1.5rem;
+            }
+        }
+    /* Add these new styles to your existing CSS */
+
+    /* Fluid Gradient Animation */
+    body::after {
+        content: '';
+        position: fixed;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: 
+            radial-gradient(circle at 70% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 30% 80%, rgba(45, 212, 191, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, rgba(110, 231, 183, 0.1) 0%, transparent 60%);
+        animation: fluidMove 20s linear infinite;
+        z-index: -2;
+        opacity: 0.5;
+    }
+
+    @keyframes fluidMove {
+        0% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(2deg) scale(1.05); }
+        50% { transform: rotate(-1deg) scale(0.95); }
+        75% { transform: rotate(1deg) scale(1.02); }
+        100% { transform: rotate(0deg) scale(1); }
+    }
+
+    /* Interactive Glow Effects */
+    .container {
+        transition: box-shadow 0.5s ease, transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at var(--x) var(--y), 
+            rgba(16, 185, 129, 0.2) 0%, 
+            transparent 30%);
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+        z-index: -1;
+    }
+
+    .container:hover::before {
+        opacity: 1;
+    }
+
+    /* Upload Section Glow */
+    .upload-section {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .upload-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 16px;
+        background: radial-gradient(circle at var(--x) var(--y), 
+            rgba(16, 185, 129, 0.3) 0%, 
+            transparent 60%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .upload-section:hover::before {
+        opacity: 0.6;
+    }
+
+    /* Submit Button Hover Effect */
+    input[type="submit"] {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    input[type="submit"]::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at var(--x) var(--y), 
+            rgba(110, 231, 183, 0.4) 0%, 
+            transparent 60%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    input[type="submit"]:hover::after {
+        opacity: 1;
+    }
+
+    /* Dynamic Glow Follow */
+    .glow-follow {
+        position: fixed;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: -1;
+        animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+        0% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+        50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
+        100% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+    }
+
+    /* Add these new 3D effect styles */
+
+    .container {
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        box-shadow: 
+            0 12px 24px -6px rgba(0,0,0,0.3),
+            0 32px 64px -12px rgba(16, 185, 129, 0.15);
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    box-shadow 0.4s ease;
+    }
+
+    .container:hover {
+        transform: translateY(-4px) rotateX(1deg) rotateY(-0.5deg);
+        box-shadow: 
+            0 16px 32px -8px rgba(0,0,0,0.4),
+            0 48px 96px -24px rgba(16, 185, 129, 0.25);
+    }
+
+    .upload-section {
+        position: relative;
+        transform: translateZ(20px);
+        box-shadow: 
+            0 8px 24px -4px rgba(0,0,0,0.25),
+            inset 0 -2px 4px rgba(255,255,255,0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .upload-section::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 16px;
+        box-shadow: inset 0 2px 8px rgba(255,255,255,0.1);
+        pointer-events: none;
+    }
+
+    .custom-file-input label {
+        box-shadow: 
+            0 4px 12px -2px rgba(16, 185, 129, 0.3),
+            0 6px 24px -4px rgba(16, 185, 129, 0.2),
+            inset 0 -2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .custom-file-input label:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 
+            0 8px 24px -4px rgba(16, 185, 129, 0.4),
+            0 12px 48px -8px rgba(16, 185, 129, 0.25),
+            inset 0 -2px 6px rgba(0,0,0,0.15);
+    }
+
+    input[type="submit"] {
+        box-shadow: 
+            0 4px 12px -2px rgba(45, 212, 191, 0.3),
+            0 6px 24px -4px rgba(45, 212, 191, 0.2),
+            inset 0 -2px 4px rgba(0,0,0,0.1);
+    }
+
+    input[type="submit"]:hover {
+        box-shadow: 
+            0 8px 24px -4px rgba(45, 212, 191, 0.4),
+            0 12px 48px -8px rgba(45, 212, 191, 0.25),
+            inset 0 -2px 6px rgba(0,0,0,0.15);
+    }
+
+    .result-section {
+        transform: translateZ(30px);
+        box-shadow: 
+            0 8px 24px -4px rgba(0,0,0,0.3),
+            0 16px 48px -12px rgba(16, 185, 129, 0.15);
+        transition: transform 0.3s ease;
+    }
+
+    .result-section:hover {
+        transform: translateZ(40px);
+    }
+
+    .result-section img {
+        box-shadow: 
+            0 8px 24px -4px rgba(0,0,0,0.4),
+            0 12px 48px -8px rgba(16, 185, 129, 0.2);
+        transform: perspective(1000px) rotateX(1deg) rotateY(-0.5deg);
+        border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .result-section img:hover {
+        transform: perspective(1000px) rotateX(1.5deg) rotateY(-1deg) scale(1.02);
+    }
+
+    .diagnosis-report {
+        position: relative;
+        transform: translateZ(20px);
+        box-shadow: 
+            inset 0 2px 8px rgba(255,255,255,0.05),
+            0 4px 12px -2px rgba(16, 185, 129, 0.2);
+    }
+
+    h1 {
+        text-shadow: 
+            0 4px 8px rgba(16, 185, 129, 0.3),
+            0 8px 24px rgba(16, 185, 129, 0.2);
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0) rotateX(0) rotateY(0); }
+        50% { transform: translateY(-10px) rotateX(2deg) rotateY(-1deg); }
+        100% { transform: translateY(0) rotateX(0) rotateY(0); }
+    }
+</style>
+
+<script>
+    // Add this JavaScript at the end of body
+    document.addEventListener('DOMContentLoaded', () => {
+        // Dynamic glow follow
+        document.addEventListener('mousemove', (e) => {
+            const container = document.querySelector('.container');
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            // Update container gradient position
+            container.style.setProperty('--x', `${x}px`);
+            container.style.setProperty('--y', `${y}px`);
+
+            // Update upload section gradient position
+            document.querySelectorAll('.upload-section, input[type="submit"]').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const localX = x - rect.left;
+                const localY = y - rect.top;
+                el.style.setProperty('--x', `${localX}px`);
+                el.style.setProperty('--y', `${localY}px`);
+            });
+        });
+
+        // Create dynamic glow element
+        const glow = document.createElement('div');
+        glow.className = 'glow-follow';
+        document.body.appendChild(glow);
+
+        // Update glow position
+        document.addEventListener('mousemove', (e) => {
+            glow.style.left = `${e.clientX}px`;
+            glow.style.top = `${e.clientY}px`;
+        });
+    }); 
+</script>
 </head>
 <body>
-    <h1>Upload an Image</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <input type="submit" value="Upload">
-    </form>
+    <div class="container">
+        <h1>PlantScan AI</h1>
+        
+        <div class="upload-section">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="custom-file-input">
+                    <input type="file" name="file" id="file">
+                    <label for="file">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Upload Leaf Image
+                    </label>
+                </div>
+                <div id="file-name"></div>
+                <input type="submit" value="Diagnose Plant">
+            </form>
+        </div>
 
-    {% if uploaded_image %}
-        <h2>Uploaded Image:</h2>
-        <img src="{{ uploaded_image }}" alt="Uploaded Image" width="300">  </br>
-    {% endif %}
+        {% if uploaded_image %}
+        <div class="result-section">
+            <h2>Diagnosis Report</h2>
+            <img src="{{ uploaded_image }}" alt="Scanned Leaf">
+            <div class="diagnosis-report">
+                <!-- Add your diagnosis results here -->
+                <div class="status-item healthy">
+                    <span class="status-icon">✅</span>
+                    <h3>Plant Health Status</h3>
+                    <p>Confidence: 92% Healthy</p>
+                </div>
+                <div class="status-item warning">
+                    <span class="status-icon">⚠️</span>
+                    <h3>Potential Issues Detected</h3>
+                    <p>Early signs of leaf spot disease</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('file').addEventListener('change', function(e) {
+            const fileName = e.target.files[0].name;
+            document.getElementById('file-name').textContent = `Selected file: ${fileName}`;
+        });
+    </script>
 </body>
 </html>
